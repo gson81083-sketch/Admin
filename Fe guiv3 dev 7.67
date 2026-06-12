@@ -1,0 +1,377 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-------------------------------------------------
+-- WINDOW
+-------------------------------------------------
+local Window = Rayfield:CreateWindow({
+	Name = "DEV HUB V11 MERGED ULTIMATE",
+	LoadingTitle = "Loading V11 System...",
+	LoadingSubtitle = "V10 + V11 FINAL COMBO",
+	ConfigurationSaving = { Enabled = false }
+})
+
+-------------------------------------------------
+-- SERVICES
+-------------------------------------------------
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+local char, hum, root, Camera = nil, nil, nil, workspace.CurrentCamera
+
+-------------------------------------------------
+-- SAFE REFRESH
+-------------------------------------------------
+local function refresh()
+	char = player.Character or player.CharacterAdded:Wait()
+	hum = char:WaitForChild("Humanoid")
+	root = char:WaitForChild("HumanoidRootPart")
+end
+
+refresh()
+
+player.CharacterAdded:Connect(function()
+	task.wait(0.3)
+	refresh()
+end)
+
+local function safe()
+	return root and root.Parent
+end
+
+-------------------------------------------------
+-- STATE (V11 FINAL)
+-------------------------------------------------
+local state = {
+	fly = false,
+	noclip = false,
+	infjump = false,
+	savedPos = nil,
+	target = nil,
+	speed = 140,
+	jump = 160,
+	esp = false
+}
+
+-------------------------------------------------
+-- GET CLOSEST PLAYER
+-------------------------------------------------
+local function getClosest()
+	local closest, dist = nil, math.huge
+
+	if not player.Character or not player.Character:FindFirstChild("Head") then return nil end
+	local myPos = player.Character.Head.Position
+
+	for _,v in pairs(Players:GetPlayers()) do
+		if v ~= player and v.Character and v.Character:FindFirstChild("Head") then
+			local mag = (v.Character.Head.Position - myPos).Magnitude
+			if mag < dist then
+				dist = mag
+				closest = v
+			end
+		end
+	end
+
+	return closest
+end
+
+-------------------------------------------------
+-- MAIN TAB
+-------------------------------------------------
+local Main = Window:CreateTab("Main", 4483362458)
+
+Main:CreateButton({
+	Name = "Heal FULL",
+	Callback = function()
+		if hum then hum.Health = hum.MaxHealth end
+	end
+})
+
+Main:CreateButton({
+	Name = "Reset Character",
+	Callback = function()
+		player:LoadCharacter()
+	end
+})
+
+Main:CreateButton({
+	Name = "Speed 140",
+	Callback = function()
+		if hum then hum.WalkSpeed = state.speed end
+	end
+})
+
+Main:CreateButton({
+	Name = "Jump 160",
+	Callback = function()
+		if hum then hum.JumpPower = state.jump end
+	end
+})
+
+-------------------------------------------------
+-- MOVEMENT (V11 UPGRADE)
+-------------------------------------------------
+local Move = Window:CreateTab("Movement", 4483362458)
+
+Move:CreateToggle({
+	Name = "Fly GOD V11",
+	Callback = function(v)
+		state.fly = v
+
+		if v and safe() then
+			local bv = Instance.new("BodyVelocity")
+			bv.Name = "FLY"
+			bv.MaxForce = Vector3.new(1e6,1e6,1e6)
+			bv.Parent = root
+
+			task.spawn(function()
+				while state.fly do
+					if root and root:FindFirstChild("FLY") then
+						root.FLY.Velocity = Camera.CFrame.LookVector * 120
+					end
+					task.wait()
+				end
+			end)
+		else
+			if root and root:FindFirstChild("FLY") then
+				root.FLY:Destroy()
+			end
+		end
+	end
+})
+
+Move:CreateToggle({
+	Name = "Noclip V11",
+	Callback = function(v)
+		state.noclip = v
+
+		task.spawn(function()
+			while state.noclip do
+				if char then
+					for _,p in pairs(char:GetDescendants()) do
+						if p:IsA("BasePart") then
+							p.CanCollide = false
+						end
+					end
+				end
+				task.wait()
+			end
+		end)
+	end
+})
+
+Move:CreateToggle({
+	Name = "Infinite Jump",
+	Callback = function(v)
+		state.infjump = v
+	end
+})
+
+UIS.JumpRequest:Connect(function()
+	if state.infjump and hum then
+		hum:ChangeState(Enum.HumanoidStateType.Jumping)
+	end
+end)
+
+-------------------------------------------------
+-- TELEPORT (V11 UPGRADE + CLICK TP)
+-------------------------------------------------
+local TP = Window:CreateTab("Teleport", 4483362458)
+
+TP:CreateButton({
+	Name = "Spawn",
+	Callback = function()
+		if safe() then root.CFrame = CFrame.new(0,10,0) end
+	end
+})
+
+TP:CreateButton({
+	Name = "Forward +200",
+	Callback = function()
+		if safe() then root.CFrame = root.CFrame + root.CFrame.LookVector * 200 end
+	end
+})
+
+TP:CreateButton({
+	Name = "Up +200",
+	Callback = function()
+		if safe() then root.CFrame = root.CFrame + Vector3.new(0,200,0) end
+	end
+})
+
+TP:CreateButton({
+	Name = "Save Position",
+	Callback = function()
+		if safe() then state.savedPos = root.CFrame end
+	end
+})
+
+TP:CreateButton({
+	Name = "Return Position",
+	Callback = function()
+		if safe() and state.savedPos then
+			root.CFrame = state.savedPos
+		end
+	end
+})
+
+TP:CreateButton({
+	Name = "TP Closest Player",
+	Callback = function()
+		local t = getClosest()
+		if t and t.Character and t.Character:FindFirstChild("HumanoidRootPart") and safe() then
+			root.CFrame = t.Character.HumanoidRootPart.CFrame + Vector3.new(0,3,0)
+		end
+	end
+})
+
+-------------------------------------------------
+-- 🌟 V11 FEATURE: CLICK TELEPORT
+-------------------------------------------------
+local mouse = player:GetMouse()
+
+TP:CreateButton({
+	Name = "Click TP Toggle",
+	Callback = function()
+		state.clicktp = not state.clicktp
+
+		if state.clicktp then
+			mouse.Button1Down:Connect(function()
+				if state.clicktp and safe() then
+					local pos = mouse.Hit
+					root.CFrame = CFrame.new(pos.X, pos.Y + 3, pos.Z)
+				end
+			end)
+		end
+	end
+})
+
+-------------------------------------------------
+-- WORLD
+-------------------------------------------------
+local World = Window:CreateTab("World", 4483362458)
+
+World:CreateButton({
+	Name = "Day",
+	Callback = function()
+		Lighting.ClockTime = 14
+	end
+})
+
+World:CreateButton({
+	Name = "Night",
+	Callback = function()
+		Lighting.ClockTime = 0
+	end
+})
+
+World:CreateButton({
+	Name = "Ultra Low Gravity",
+	Callback = function()
+		workspace.Gravity = 20
+	end
+})
+
+World:CreateButton({
+	Name = "Normal Gravity",
+	Callback = function()
+		workspace.Gravity = 196.2
+	end
+})
+
+-------------------------------------------------
+-- PLAYER SYSTEM
+-------------------------------------------------
+local P = Window:CreateTab("Players", 4483362458)
+
+P:CreateInput({
+	Name = "Target Player",
+	Callback = function(text)
+		state.target = Players:FindFirstChild(text)
+	end
+})
+
+P:CreateButton({
+	Name = "Spectate",
+	Callback = function()
+		if state.target and state.target.Character then
+			Camera.CameraSubject = state.target.Character:FindFirstChild("Humanoid")
+		end
+	end
+})
+
+P:CreateButton({
+	Name = "Stop Spectate",
+	Callback = function()
+		if player.Character then
+			Camera.CameraSubject = player.Character:FindFirstChild("Humanoid")
+		end
+	end
+})
+
+P:CreateButton({
+	Name = "TP Target",
+	Callback = function()
+		if state.target and state.target.Character and safe() then
+			local hrp = state.target.Character:FindFirstChild("HumanoidRootPart")
+			if hrp then
+				root.CFrame = hrp.CFrame + Vector3.new(0,3,0)
+			end
+		end
+	end
+})
+
+-------------------------------------------------
+-- V11 FEATURE: SLIDERS (CORE UPGRADE)
+-------------------------------------------------
+P:CreateSlider({
+	Name = "Speed Slider",
+	Range = {16, 300},
+	Increment = 1,
+	Callback = function(v)
+		state.speed = v
+		if hum then hum.WalkSpeed = v end
+	end
+})
+
+P:CreateSlider({
+	Name = "Jump Slider",
+	Range = {50, 300},
+	Increment = 1,
+	Callback = function(v)
+		state.jump = v
+		if hum then hum.JumpPower = v end
+	end
+})
+
+-------------------------------------------------
+-- DEBUG
+-------------------------------------------------
+local D = Window:CreateTab("Debug", 4483362458)
+
+D:CreateButton({
+	Name = "Print Position",
+	Callback = function()
+		if root then print(root.Position) end
+	end
+})
+
+D:CreateButton({
+	Name = "Show Stats",
+	Callback = function()
+		if hum then
+			print("HP:", hum.Health)
+			print("Speed:", hum.WalkSpeed)
+			print("Jump:", hum.JumpPower)
+		end
+	end
+})
+
+D:CreateButton({
+	Name = "Closest Player",
+	Callback = function()
+		local t = getClosest()
+		if t then print("Closest:", t.Name) end
+	end
+})
