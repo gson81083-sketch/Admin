@@ -1,0 +1,196 @@
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local Player = Players.LocalPlayer
+local char = Player.Character or Player.CharacterAdded:Wait()
+local hum = char:WaitForChild("Humanoid")
+
+------------------------------------------------
+-- UI
+------------------------------------------------
+local ScreenGui = Instance.new("ScreenGui", Player:WaitForChild("PlayerGui"))
+ScreenGui.Name = "HUB"
+
+local Button = Instance.new("ImageButton", ScreenGui)
+Button.Size = UDim2.new(0,45,0,45)
+Button.Position = UDim2.new(0,10,0.5,-22)
+Button.BackgroundTransparency = 1
+Button.Image = "rbxassetid://17317095897"
+Instance.new("UICorner", Button).CornerRadius = UDim.new(1,0)
+
+local Frame = Instance.new("Frame", ScreenGui)
+Frame.Size = UDim2.new(0,260,0,220)
+Frame.Position = UDim2.new(0,60,0.5,-110)
+Frame.Visible = false
+Frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+Instance.new("UICorner", Frame)
+
+------------------------------------------------
+-- DRAG BUTTON
+------------------------------------------------
+local dragging = false
+local start, pos
+
+Button.InputBegan:Connect(function(i)
+	if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		start = i.Position
+		pos = Button.Position
+	end
+end)
+
+UIS.InputChanged:Connect(function(i)
+	if dragging and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+		local delta = i.Position - start
+		Button.Position = UDim2.new(pos.X.Scale, pos.X.Offset + delta.X, pos.Y.Scale, pos.Y.Offset + delta.Y)
+	end
+end)
+
+UIS.InputEnded:Connect(function()
+	dragging = false
+end)
+
+------------------------------------------------
+-- OPEN UI
+------------------------------------------------
+Button.MouseButton1Click:Connect(function()
+	Frame.Visible = not Frame.Visible
+end)
+
+------------------------------------------------
+-- TAB SYSTEM
+------------------------------------------------
+local Sidebar = Instance.new("Frame", Frame)
+Sidebar.Size = UDim2.new(0,70,1,0)
+Sidebar.BackgroundColor3 = Color3.fromRGB(35,35,35)
+Instance.new("UICorner", Sidebar)
+
+local Content = Instance.new("Frame", Frame)
+Content.Size = UDim2.new(1,-75,1,0)
+Content.Position = UDim2.new(0,75,0,0)
+Content.BackgroundTransparency = 1
+
+local function createTab(name, y)
+	local t = Instance.new("TextButton", Sidebar)
+	t.Size = UDim2.new(1,0,0,40)
+	t.Position = UDim2.new(0,0,0,y)
+	t.Text = name
+	t.BackgroundColor3 = Color3.fromRGB(45,45,45)
+	t.TextColor3 = Color3.fromRGB(255,255,255)
+	Instance.new("UICorner", t)
+	return t
+end
+
+local function clear()
+	for _,v in pairs(Content:GetChildren()) do
+		v:Destroy()
+	end
+end
+
+local function createBtn(name, y)
+	local b = Instance.new("TextButton", Content)
+	b.Size = UDim2.new(0.9,0,0,30)
+	b.Position = UDim2.new(0.05,0,0,y)
+	b.Text = name
+	b.BackgroundColor3 = Color3.fromRGB(40,40,40)
+	b.TextColor3 = Color3.fromRGB(255,255,255)
+	Instance.new("UICorner", b)
+	return b
+end
+
+local MainTab = createTab("MAIN", 10)
+
+------------------------------------------------
+-- SYSTEMS STATE
+------------------------------------------------
+local speedOn = false
+local infJump = false
+local flying = false
+local floating = false
+
+------------------------------------------------
+-- MAIN TAB
+------------------------------------------------
+local function openMain()
+	clear()
+
+	local speedBtn = createBtn("Speed", 20)
+	local flyBtn = createBtn("Fly", 60)
+	local floatBtn = createBtn("Float", 100)
+	local infJumpBtn = createBtn("Inf Jump", 140)
+	local jumpBtn = createBtn("Jump Boost", 180)
+
+	-- SPEED
+	speedBtn.MouseButton1Click:Connect(function()
+		speedOn = not speedOn
+		hum.WalkSpeed = speedOn and 32 or 16
+	end)
+
+	-- FLY
+	flyBtn.MouseButton1Click:Connect(function()
+		flying = not flying
+
+		local root = char:FindFirstChild("HumanoidRootPart")
+		if not root then return end
+
+		local bv = Instance.new("BodyVelocity", root)
+		bv.MaxForce = Vector3.new(1e9,1e9,1e9)
+
+		RunService.RenderStepped:Connect(function()
+			if not flying then
+				bv:Destroy()
+				return
+			end
+			bv.Velocity = workspace.CurrentCamera.CFrame.LookVector * 60
+		end)
+	end)
+
+	-- FLOAT
+	floatBtn.MouseButton1Click:Connect(function()
+		floating = not floating
+
+		local root = char:FindFirstChild("HumanoidRootPart")
+		if not root then return end
+
+		local bp = Instance.new("BodyPosition", root)
+		bp.MaxForce = Vector3.new(1e9,1e9,1e9)
+
+		RunService.RenderStepped:Connect(function()
+			if not floating then
+				bp:Destroy()
+				return
+			end
+			bp.Position = root.Position + Vector3.new(0,5,0)
+		end)
+	end)
+
+	-- INF JUMP
+	infJumpBtn.MouseButton1Click:Connect(function()
+		infJump = not infJump
+	end)
+
+	UIS.JumpRequest:Connect(function()
+		if infJump then
+			hum:ChangeState(Enum.HumanoidStateType.Jumping)
+		end
+	end)
+
+	-- JUMP BOOST
+	jumpBtn.MouseButton1Click:Connect(function()
+		hum.UseJumpPower = true
+		hum.JumpPower = 100
+	end)
+end
+
+MainTab.MouseButton1Click:Connect(openMain)
+openMain()
+
+------------------------------------------------
+-- RESPAWN FIX
+------------------------------------------------
+Player.CharacterAdded:Connect(function(c)
+	char = c
+	hum = c:WaitForChild("Humanoid")
+	hum.WalkSpeed = 16
+end)
