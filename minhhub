@@ -1,0 +1,789 @@
+-- ==============================================
+-- MINH HUB | ROBLOX SCRIPT
+-- Mã truy cập: minhhub
+-- Phiên bản: Hoàn chỉnh đầy đủ chức năng
+-- ==============================================
+
+-- Dịch vụ hệ thống
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local StarterGui = game:GetService("StarterGui")
+local ContextActionService = game:GetService("ContextActionService")
+
+-- Biến toàn cục
+local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
+local Camera = Workspace.CurrentCamera
+local Mouse = Player:GetMouse()
+local HubKey = "minhhub"
+local HubUnlocked = false
+local HubVisible = true
+
+-- ==============================================
+-- GIAO DIỆN NHẬP MÃ TRUY CẬP
+-- ==============================================
+local KeyGui = Instance.new("ScreenGui")
+KeyGui.Name = "MinhHub_Key"
+KeyGui.ResetOnSpawn = false
+KeyGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+KeyGui.Parent = game.CoreGui
+
+local UICorner = Instance.new("UICorner")
+
+-- Khung chính nhập mã
+local KeyFrame = Instance.new("Frame")
+KeyFrame.Size = UDim2.new(0, 320, 0, 260)
+KeyFrame.Position = UDim2.new(0.5, -160, 0.5, -130)
+KeyFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+KeyFrame.BorderSizePixel = 0
+KeyFrame.Active = true
+KeyFrame.Parent = KeyGui
+
+local KeyCorner = UICorner:Clone()
+KeyCorner.CornerRadius = UDim.new(0, 10)
+KeyCorner.Parent = KeyFrame
+
+-- Tiêu đề
+local KeyTitle = Instance.new("TextLabel")
+KeyTitle.Size = UDim2.new(1, 0, 0, 40)
+KeyTitle.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+KeyTitle.Text = "🔑 NHẬP MÃ TRUY CẬP"
+KeyTitle.Font = Enum.Font.GothamBold
+KeyTitle.TextColor3 = Color3.new(1,1,1)
+KeyTitle.TextSize = 16
+KeyTitle.BorderSizePixel = 0
+KeyTitle.Parent = KeyFrame
+
+-- Ô nhập mã
+local KeyInput = Instance.new("TextBox")
+KeyInput.Size = UDim2.new(0.8, 0, 0, 40)
+KeyInput.Position = UDim2.new(0.1, 0, 0, 60)
+KeyInput.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+KeyInput.PlaceholderText = "Nhập mã tại đây..."
+KeyInput.Font = Enum.Font.Gotham
+KeyInput.TextColor3 = Color3.new(1,1,1)
+KeyInput.TextSize = 15
+KeyInput.Text = ""
+KeyInput.ClearTextOnFocus = false
+KeyInput.BorderSizePixel = 0
+KeyInput.Parent = KeyFrame
+
+local InputCorner = UICorner:Clone()
+InputCorner.CornerRadius = UDim.new(0, 8)
+InputCorner.Parent = KeyInput
+
+-- Nút xác nhận
+local SubmitBtn = Instance.new("TextButton")
+SubmitBtn.Size = UDim2.new(0, 110, 0, 35)
+SubmitBtn.Position = UDim2.new(0.1, 0, 0, 110)
+SubmitBtn.BackgroundColor3 = Color3.fromRGB(60, 120, 220)
+SubmitBtn.Text = "XÁC NHẬN"
+SubmitBtn.Font = Enum.Font.GothamBold
+SubmitBtn.TextColor3 = Color3.new(1,1,1)
+SubmitBtn.TextSize = 14
+SubmitBtn.BorderSizePixel = 0
+SubmitBtn.Parent = KeyFrame
+
+local BtnCorner = UICorner:Clone()
+BtnCorner.CornerRadius = UDim.new(0, 8)
+BtnCorner.Parent = SubmitBtn
+
+-- Nút lấy mã
+local GetKeyBtn = Instance.new("TextButton")
+GetKeyBtn.Size = UDim2.new(0, 110, 0, 35)
+GetKeyBtn.Position = UDim2.new(0.55, 0, 0, 110)
+GetKeyBtn.BackgroundColor3 = Color3.fromRGB(50, 180, 100)
+GetKeyBtn.Text = "GET KEY"
+GetKeyBtn.Font = Enum.Font.GothamBold
+GetKeyBtn.TextColor3 = Color3.new(1,1,1)
+GetKeyBtn.TextSize = 14
+GetKeyBtn.BorderSizePixel = 0
+GetKeyBtn.Parent = KeyFrame
+
+local GetKeyCorner = UICorner:Clone()
+GetKeyCorner.CornerRadius = UDim.new(0, 8)
+GetKeyCorner.Parent = GetKeyBtn
+
+-- Khung hiển thị link
+local LinksFrame = Instance.new("Frame")
+LinksFrame.Size = UDim2.new(0.9, 0, 0, 70)
+LinksFrame.Position = UDim2.new(0.05, 0, 0, 160)
+LinksFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+LinksFrame.BorderSizePixel = 0
+LinksFrame.Visible = false
+LinksFrame.Parent = KeyFrame
+
+local LinksCorner = UICorner:Clone()
+LinksCorner.CornerRadius = UDim.new(0, 6)
+LinksCorner.Parent = LinksFrame
+
+-- Link 1
+local Link1 = Instance.new("TextButton")
+Link1.Size = UDim2.new(1, 0, 0.5, 0)
+Link1.Position = UDim2.new(0, 0, 0, 0)
+Link1.BackgroundTransparency = 1
+Link1.Text = "https://link-target.net/6562673/pR6j4guWc3Ac"
+Link1.Font = Enum.Font.Gotham
+Link1.TextColor3 = Color3.fromRGB(100, 180, 255)
+Link1.TextSize = 11
+Link1.TextWrapped = true
+Link1.Parent = LinksFrame
+
+-- Link 2
+local Link2 = Instance.new("TextButton")
+Link2.Size = UDim2.new(1, 0, 0.5, 0)
+Link2.Position = UDim2.new(0, 0, 0.5, 0)
+Link2.BackgroundTransparency = 1
+Link2.Text = "https://link-center.net/6562673/9Xu8FVLMSjai"
+Link2.Font = Enum.Font.Gotham
+Link2.TextColor3 = Color3.fromRGB(100, 180, 255)
+Link2.TextSize = 11
+Link2.TextWrapped = true
+Link2.Parent = LinksFrame
+
+-- Thông báo trạng thái
+local StatusText = Instance.new("TextLabel")
+StatusText.Size = UDim2.new(0.9, 0, 0, 25)
+StatusText.Position = UDim2.new(0.05, 0, 0, 235)
+StatusText.BackgroundTransparency = 1
+StatusText.Font = Enum.Font.Gotham
+StatusText.TextColor3 = Color3.fromRGB(255, 80, 80)
+StatusText.TextSize = 12
+StatusText.Text = ""
+StatusText.Parent = KeyFrame
+
+-- Chức năng nút GET KEY
+GetKeyBtn.MouseButton1Click:Connect(function()
+    LinksFrame.Visible = not LinksFrame.Visible
+    StatusText.Text = LinksFrame.Visible and "✅ Nhấn link để sao chép" or ""
+    StatusText.TextColor3 = Color3.fromRGB(50, 200, 100)
+end)
+
+Link1.MouseButton1Click:Connect(function()
+    setclipboard(Link1.Text)
+    StatusText.Text = "✅ Đã sao chép Link 1"
+    StatusText.TextColor3 = Color3.fromRGB(50, 200, 100)
+    task.wait(2)
+    if StatusText.Text == "✅ Đã sao chép Link 1" then StatusText.Text = "" end
+end)
+
+Link2.MouseButton1Click:Connect(function()
+    setclipboard(Link2.Text)
+    StatusText.Text = "✅ Đã sao chép Link 2"
+    StatusText.TextColor3 = Color3.fromRGB(50, 200, 100)
+    task.wait(2)
+    if StatusText.Text == "✅ Đã sao chép Link 2" then StatusText.Text = "" end
+end)
+
+-- Kiểm tra mã đúng/sai
+local function CheckKey()
+    local input = KeyInput.Text:lower():gsub("%s+", "")
+    if input == HubKey then
+        StatusText.TextColor3 = Color3.fromRGB(60, 220, 100)
+        StatusText.Text = "✅ Mã đúng! Đang mở hub..."
+        task.wait(0.8)
+        KeyGui:Destroy()
+        HubUnlocked = true
+        LoadMainHub()
+    else
+        StatusText.Text = "❌ Mã sai! Thử lại"
+    end
+end
+
+SubmitBtn.MouseButton1Click:Connect(CheckKey)
+KeyInput.FocusLost:Connect(function(enterPressed) if enterPressed then CheckKey() end end)
+
+-- ==============================================
+-- HUB CHÍNH & TẤT CẢ CHỨC NĂNG
+-- ==============================================
+function LoadMainHub()
+    -- Biến quản lý nhân vật
+    local Char, Hum, HRP
+    local function RefreshChar()
+        Char = Player.Character or Player.CharacterAdded:Wait()
+        Hum = Char:FindFirstChildOfClass("Humanoid")
+        HRP = Char:FindFirstChild("HumanoidRootPart")
+    end
+    RefreshChar()
+    Player.CharacterAdded:Connect(function() task.wait(0.5) RefreshChar() end)
+
+    -- Biến lưu trạng thái ban đầu
+    local Conn = {}
+    local Original = {
+        WalkSpeed = 16, JumpPower = 50, FallDamage = true, FOV = 70, HRPSize = Vector3.new(2,3,2),
+        Transparency = {}
+    }
+
+    -- Cài đặt cho Aim & Dịch chuyển
+    local AimSettings = {Enabled = false, Lock = false, Part = "Head", Smooth = 0.2, Range = 300}
+    local SavedTelePoint = nil
+
+    -- Tạo giao diện chính
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "MinhHub_Main"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    ScreenGui.Parent = game.CoreGui
+
+    -- Nút mở/đóng hub
+    local MainBtn = Instance.new("TextButton")
+    MainBtn.Size = UDim2.new(0, 45, 0, 45)
+    MainBtn.Position = UDim2.new(0.02, 0, 0.05, 0)
+    MainBtn.BackgroundColor3 = Color3.fromRGB(40, 120, 255)
+    MainBtn.Font = Enum.Font.GothamBold
+    MainBtn.Text = "☰"
+    MainBtn.TextColor3 = Color3.new(1,1,1)
+    MainBtn.TextSize = 20
+    MainBtn.BorderSizePixel = 0
+    MainBtn.AutoButtonColor = false
+    MainBtn.Parent = ScreenGui
+
+    local MainBtnCorner = UICorner:Clone()
+    MainBtnCorner.CornerRadius = UDim.new(0.2, 0)
+    MainBtnCorner.Parent = MainBtn
+
+    -- Khung chính chứa tất cả chức năng
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Size = UDim2.new(0, 340, 0, 820)
+    MainFrame.Position = UDim2.new(0.1, 0, 0.12, 0)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(20, 22, 30)
+    MainFrame.BorderSizePixel = 0
+    MainFrame.Visible = true
+    MainFrame.Parent = ScreenGui
+
+    local MainFrameCorner = UICorner:Clone()
+    MainFrameCorner.CornerRadius = UDim.new(0, 12)
+    MainFrameCorner.Parent = MainFrame
+
+    -- Thanh tiêu đề & kéo thả
+    local TitleBar = Instance.new("Frame")
+    TitleBar.Size = UDim2.new(1, 0, 0, 40)
+    TitleBar.BackgroundColor3 = Color3.fromRGB(35, 38, 55)
+    TitleBar.BorderSizePixel = 0
+    TitleBar.Parent = MainFrame
+
+    local TitleBarCorner = UICorner:Clone()
+    TitleBarCorner.CornerRadius = UDim.new(0, 12)
+    TitleBarCorner.Parent = TitleBar
+
+    local TitleText = Instance.new("TextLabel")
+    TitleText.Size = UDim2.new(1, -15, 1, 0)
+    TitleText.Position = UDim2.new(0, 12, 0, 0)
+    TitleText.Text = "✨ MINH HUB | HOÀN CHỈNH"
+    TitleText.Font = Enum.Font.GothamBold
+    TitleText.TextColor3 = Color3.fromRGB(255, 215, 0)
+    TitleText.BackgroundTransparency = 1
+    TitleText.TextSize = 15
+    TitleText.Parent = TitleBar
+
+    -- Chức năng kéo thả khung
+    local Drag = {Enabled = false, Start = nil, Offset = nil}
+    TitleBar.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+            Drag.Enabled = true
+            Drag.Start = i.Position
+            Drag.Offset = MainFrame.Position
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(i)
+        if Drag.Enabled then
+            local delta = i.Position - Drag.Start
+            MainFrame.Position = UDim2.new(Drag.Offset.X.Scale, Drag.Offset.X.Offset + delta.X, Drag.Offset.Y.Scale, Drag.Offset.Y.Offset + delta.Y)
+        end
+    end)
+    UserInputService.InputEnded:Connect(function() Drag.Enabled = false end)
+
+    -- Bật/Tắt hiển thị hub
+    local function ToggleHub()
+        HubVisible = not HubVisible
+        MainFrame.Visible = HubVisible
+    end
+    MainBtn.MouseButton1Click:Connect(ToggleHub)
+    UserInputService.InputBegan:Connect(function(i) if i.KeyCode == Enum.KeyCode.Insert then ToggleHub() end end)
+
+    -- Khung cuộn nội dung
+    local Scroll = Instance.new("ScrollingFrame")
+    Scroll.Size = UDim2.new(1, -22, 1, -50)
+    Scroll.Position = UDim2.new(0, 11, 0, 45)
+    Scroll.BackgroundTransparency = 1
+    Scroll.CanvasSize = UDim2.new(0, 0, 0, 1600)
+    Scroll.ScrollBarThickness = 5
+    Scroll.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 120)
+    Scroll.Parent = MainFrame
+
+    -- Hàm tạo nút bật/tắt
+    local function CreateToggle(Name, PosY, Callback)
+        local Container = Instance.new("Frame")
+        Container.Size = UDim2.new(1, -12, 0, 42)
+        Container.Position = UDim2.new(0, 6, 0, PosY)
+        Container.BackgroundColor3 = Color3.fromRGB(30, 33, 48)
+        Container.BorderSizePixel = 0
+        Container.Parent = Scroll
+
+        local ContainerCorner = UICorner:Clone()
+        ContainerCorner.CornerRadius = UDim.new(0, 8)
+        ContainerCorner.Parent = Container
+
+        local Label = Instance.new("TextLabel")
+        Label.Size = UDim2.new(0.72, 0, 1, 0)
+        Label.Position = UDim2.new(0, 12, 0, 0)
+        Label.Text = Name
+        Label.Font = Enum.Font.GothamSemibold
+        Label.TextColor3 = Color3.fromRGB(230, 230, 255)
+        Label.BackgroundTransparency = 1
+        Label.TextSize = 14
+        Label.Parent = Container
+
+        local Btn = Instance.new("TextButton")
+        Btn.Size = UDim2.new(0, 52, 0, 26)
+        Btn.Position = UDim2.new(1, -65, 0.5, -13)
+        Btn.BackgroundColor3 = Color3.fromRGB(75, 78, 105)
+        Btn.Text = "OFF"
+        Btn.Font = Enum.Font.GothamBold
+        Btn.TextColor3 = Color3.new(1,1,1)
+        Btn.TextSize = 12
+        Btn.BorderSizePixel = 0
+        Btn.AutoButtonColor = false
+        Btn.Parent = Container
+
+        local BtnCorner = UICorner:Clone()
+        BtnCorner.CornerRadius = UDim.new(0, 13)
+        BtnCorner.Parent = Btn
+
+        Btn.MouseButton1Click:Connect(function()
+            local On = Btn.Text == "OFF"
+            Btn.BackgroundColor3 = On and Color3.fromRGB(50, 190, 90) or Color3.fromRGB(75, 78, 105)
+            Btn.Text = On and "ON" or "OFF"
+            Callback(On)
+        end)
+    end
+
+    -- Hàm tạo nút hành động
+    local function CreateButton(Name, PosY, Callback)
+        local Container = Instance.new("Frame")
+        Container.Size = UDim2.new(1, -12, 0, 42)
+        Container.Position = UDim2.new(0, 6, 0, PosY)
+        Container.BackgroundColor3 = Color3.fromRGB(30, 33, 48)
+        Container.BorderSizePixel = 0
+        Container.Parent = Scroll
+
+        local ContainerCorner = UICorner:Clone()
+        ContainerCorner.CornerRadius = UDim.new(0, 8)
+        ContainerCorner.Parent = Container
+
+        local Btn = Instance.new("TextButton")
+        Btn.Size = UDim2.new(1, -12, 0, 32)
+        Btn.Position = UDim2.new(0, 6, 0.5, -16)
+        Btn.BackgroundColor3 = Color3.fromRGB(80, 100, 200)
+        Btn.Text = Name
+        Btn.Font = Enum.Font.GothamBold
+        Btn.TextColor3 = Color3.new(1,1,1)
+        Btn.TextSize = 14
+        Btn.BorderSizePixel = 0
+        Btn.AutoButtonColor = false
+        Btn.Parent = Container
+
+        local BtnCorner = UICorner:Clone()
+        BtnCorner.CornerRadius = UDim.new(0, 6)
+        BtnCorner.Parent = Btn
+
+        Btn.MouseButton1Click:Connect(function()
+            RefreshChar()
+            if Hum and Hum.Health > 0 then
+                Callback()
+            else
+                StatusText.Text = "❌ Nhân vật chưa sẵn sàng"
+                task.wait(1.5) StatusText.Text = ""
+            end
+        end)
+    end
+
+    -- ==============================================
+    -- ✅ CHỨC NĂNG BAY (FLY V3)
+    -- ==============================================
+    CreateToggle("Bay (Fly GUI V3)", 0, function(Enabled)
+        if ScreenGui:FindFirstChild("FlyUI") then ScreenGui:FindFirstChild("FlyUI"):Destroy() end
+        if Conn.FlyLoop then Conn.FlyLoop:Disconnect() Conn.FlyLoop = nil end
+
+        if not Enabled then
+            RefreshChar()
+            if Hum then
+                Hum.PlatformStand = false
+                Hum.Animate.Disabled = false
+                for _, state in pairs(Enum.HumanoidStateType:GetEnumItems()) do Hum:SetStateEnabled(state, true) end
+            end
+            return
+        end
+
+        local FlyUI = Instance.new("ScreenGui")
+        FlyUI.Name = "FlyUI"
+        FlyUI.Parent = ScreenGui
+        FlyUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        FlyUI.ResetOnSpawn = false
+
+        local Frame = Instance.new("Frame")
+        Frame.Parent = FlyUI
+        Frame.BackgroundColor3 = Color3.fromRGB(163, 255, 137)
+        Frame.BorderColor3 = Color3.fromRGB(103, 221, 213)
+        Frame.Position = UDim2.new(0.1003, 0, 0.3797, 0)
+        Frame.Size = UDim2.new(0, 190, 0, 57)
+        Frame.Active = true
+        Frame.Draggable = true
+
+        local up = Instance.new("TextButton")
+        up.Parent = Frame
+        up.BackgroundColor3 = Color3.fromRGB(79, 255, 152)
+        up.Size = UDim2.new(0, 44, 0, 28)
+        up.Font = Enum.Font.SourceSans
+        up.Text = "UP"
+        up.TextColor3 = Color3.new(0,0,0)
+        up.TextSize = 14
+
+        local down = Instance.new("TextButton")
+        down.Parent = Frame
+        down.BackgroundColor3 = Color3.fromRGB(215, 255, 121)
+        down.Position = UDim2.new(0, 0, 0.491, 0)
+        down.Size = UDim2.new(0, 44, 0, 28)
+        down.Font = Enum.Font.SourceSans
+        down.Text = "DOWN"
+        down.TextColor3 = Color3.new(0,0,0)
+        down.TextSize = 14
+
+        local onof = Instance.new("TextButton")
+        onof.Parent = Frame
+        onof.BackgroundColor3 = Color3.fromRGB(255, 249, 74)
+        onof.Position = UDim2.new(0.702, 0, 0.491, 0)
+        onof.Size = UDim2.new(0, 56, 0, 28)
+        onof.Font = Enum.Font.SourceSans
+        onof.Text = "FLY"
+        onof.TextColor3 = Color3.new(0,0,0)
+        onof.TextSize = 14
+
+        local TextLabel = Instance.new("TextLabel")
+        TextLabel.Parent = Frame
+        TextLabel.BackgroundColor3 = Color3.fromRGB(242, 60, 255)
+        TextLabel.Position = UDim2.new(0.469, 0, 0, 0)
+        TextLabel.Size = UDim2.new(0, 100, 0, 28)
+        TextLabel.Font = Enum.Font.SourceSans
+        TextLabel.Text = "FLY GUI V3"
+        TextLabel.TextColor3 = Color3.new(0,0,0)
+        TextLabel.TextSize = 14
+
+        local plus = Instance.new("TextButton")
+        plus.Parent = Frame
+        plus.BackgroundColor3 = Color3.fromRGB(133, 145, 255)
+        plus.Position = UDim2.new(0.231, 0, 0, 0)
+        plus.Size = UDim2.new(0, 45, 0, 28)
+        plus.Font = Enum.Font.SourceSans
+        plus.Text = "+"
+        plus.TextColor3 = Color3.new(0,0,0)
+        plus.TextSize = 18
+
+        local speed = Instance.new("TextLabel")
+        speed.Parent = Frame
+        speed.BackgroundColor3 = Color3.fromRGB(255, 85, 0)
+        speed.Position = UDim2.new(0.468, 0, 0.491, 0)
+        speed.Size = UDim2.new(0, 44, 0, 28)
+        speed.Font = Enum.Font.SourceSans
+        speed.Text = "1"
+        speed.TextColor3 = Color3.new(0,0,0)
+        speed.TextSize = 16
+
+        local mine = Instance.new("TextButton")
+        mine.Parent = Frame
+        mine.BackgroundColor3 = Color3.fromRGB(123, 255, 247)
+        mine.Position = UDim2.new(0.231, 0, 0.491, 0)
+        mine.Size = UDim2.new(0, 45, 0, 29)
+        mine.Font = Enum.Font.SourceSans
+        mine.Text = "-"
+        mine.TextColor3 = Color3.new(0,0,0)
+        mine.TextSize = 18
+
+        local speeds = 1
+        local nowe = false
+
+        onof.MouseButton1Down:Connect(function()
+            nowe = not nowe
+            RefreshChar()
+            if nowe then
+                Hum.Animate.Disabled = true
+                for _, state in pairs(Enum.HumanoidStateType:GetEnumItems()) do Hum:SetStateEnabled(state, false) end
+                Hum:SetStateEnabled(Enum.HumanoidStateType.Swimming, true)
+                Hum:ChangeState(Enum.HumanoidStateType.Swimming)
+                Hum.PlatformStand = true
+
+                Conn.FlyLoop = RunService.RenderStepped:Connect(function()
+                    if not nowe or not HRP then return end
+                    local moveDir = Hum.MoveDirection
+                    if moveDir.Magnitude > 0 then
+                        HRP.CFrame = HRP.CFrame + Camera.CFrame:VectorToWorldSpace(Vector3.new(moveDir.X, 0, moveDir.Z)) * speeds * 3
+                    end
+                end)
+            else
+                Hum.PlatformStand = false
+                Hum.Animate.Disabled = false
+                for _, state in pairs(Enum.HumanoidStateType:GetEnumItems()) do Hum:SetStateEnabled(state, true) end
+                if Conn.FlyLoop then Conn.FlyLoop:Disconnect() Conn.FlyLoop = nil end
+            end
+        end)
+
+        local upConn
+        up.MouseButton1Down:Connect(function()
+            upConn = task.spawn(function() while task.wait() and nowe do HRP.CFrame += Vector3.new(0, 0.5, 0) end end)
+        end)
+        up.MouseButton1Up:Connect(function() if upConn then task.cancel(upConn) upConn = nil end end)
+
+        local downConn
+        down.MouseButton1Down:Connect(function()
+            downConn = task.spawn(function() while task.wait() and nowe do HRP.CFrame -= Vector3.new(0, 0.5, 0) end end)
+        end)
+        down.MouseButton1Up:Connect(function() if downConn then task.cancel(downConn) downConn = nil end end)
+
+        plus.MouseButton1Click:Connect(function() speeds = speeds + 1 speed.Text = tostring(speeds) end)
+        mine.MouseButton1Click:Connect(function() if speeds > 1 then speeds = speeds - 1 speed.Text = tostring(speeds) end end)
+    end)
+
+    -- ==============================================
+    -- ✅ CÁC CHỨC NĂNG CƠ BẢN
+    -- ==============================================
+    CreateToggle("Tốc độ cao", 50, function(Enabled) RefreshChar(); if Hum then Hum.WalkSpeed = Enabled and 220 or Original.WalkSpeed end end)
+    CreateToggle("Nhảy cao", 100, function(Enabled) RefreshChar(); if Hum then Hum.JumpPower = Enabled and 350 or Original.JumpPower end end)
+    CreateToggle("Tự nhảy liên tục", 150, function(Enabled)
+        if Conn.AutoJump then Conn.AutoJump:Disconnect() Conn.AutoJump = nil end
+        if Enabled then
+            Conn.AutoJump = RunService.Heartbeat:Connect(function()
+                RefreshChar()
+                if Hum and Hum.Health > 0 and Hum:GetState() == Enum.HumanoidStateType.Landed then
+                    Hum:ChangeState(Enum.HumanoidStateType.Jumping)
+                end
+            end)
+        end
+    end)
+    CreateToggle("Vùng đánh lớn", 200, function(Enabled)
+        if Conn.Hitbox then Conn.Hitbox:Disconnect() Conn.Hitbox = nil end
+        RefreshChar(); if not HRP then return end
+        Original.HRPSize = HRP.Size
+        if Enabled then
+            Conn.Hitbox = RunService.RenderStepped:Connect(function() if HRP and Hum.Health > 0 then HRP.Size = Vector3.new(9,11,9) end end)
+        else
+            HRP.Size = Original.HRPSize
+        end
+    end)
+    CreateToggle("Tàng hình", 250, function(Enabled)
+        RefreshChar()
+        if not Char then return end
+        if Enabled then
+            Original.Transparency = {}
+            for _,p in ipairs(Char:GetDescendants()) do
+                if p:IsA("BasePart") or p:IsA("Decal") or p:IsA("Texture") then
+                    Original.Transparency[p] = p.Transparency or 0
+                    p.Transparency = 1
+                elseif p:IsA("Shirt") or p:IsA("Pants") or p:IsA("Accessory") then
+                    p.Transparency = 1
+                end
+            end
+            StarterGui:SetCore("NameDisplayDistance", 0)
+            StarterGui:SetCore("HealthDisplayDistance", 0)
+        else
+            for p,trans in pairs(Original.Transparency) do if p and p:IsDescendantOf(Char) then p.Transparency = trans end end
+            for _,p in ipairs(Char:GetDescendants()) do if p:IsA("Shirt") or p:IsA("Pants") or p:IsA("Accessory") then p.Transparency = 0 end end
+            StarterGui:SetCore("NameDisplayDistance", 100)
+            StarterGui:SetCore("HealthDisplayDistance", 100)
+        end
+    end)
+    CreateToggle("Dịch chuyển chạm màn hình", 300, function(Enabled)
+        if Conn.TeleTouch then Conn.TeleTouch:Disconnect() Conn.TeleTouch = nil end
+        if Enabled then
+            Conn.TeleTouch = UserInputService.InputBegan:Connect(function(input)
+                if (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1) and not HubVisible then
+                    RefreshChar() if not HRP or Hum.Health <= 0 then return end
+                    local ray = Camera:ScreenPointToRay(input.Position.X, input.Position.Y)
+                    local rayParam = RaycastParams.new()
+                    rayParam.FilterDescendantsInstances = {Char}
+                    rayParam.FilterType = Enum.RaycastFilterType.Blacklist
+                    local result = Workspace:Raycast(ray.Origin, ray.Direction * 1200, rayParam)
+                    if result then HRP.CFrame = CFrame.new(result.Position + Vector3.new(0, 2.5, 0)) HRP.Velocity = Vector3.new(0,0,0) end
+                end
+            end)
+        end
+    end)
+    CreateToggle("Nhảy tường (Wallhop)", 350, function(Enabled)
+        if Conn.Wallhop then Conn.Wallhop:Disconnect() Conn.Wallhop = nil end
+        if Enabled then
+            local lastJump = 0
+            Conn.Wallhop = RunService.Heartbeat:Connect(function()
+                RefreshChar() if not Hum or Hum.Health <= 0 or not HRP then return end
+                local state = Hum:GetState()
+                if state == Enum.HumanoidStateType.Freefall or state == Enum.HumanoidStateType.Jumping then
+                    local rayParam = RaycastParams.new()
+                    rayParam.FilterDescendantsInstances = {Char}
+                    rayParam.FilterType = Enum.RaycastFilterType.Blacklist
+                    local dirs = {Vector3.new(1,0,0), Vector3.new(-1,0,0), Vector3.new(0,0,1), Vector3.new(0,0,-1)}
+                    for _,d in ipairs(dirs) do
+                        local res = Workspace:Raycast(HRP.Position, d * 2.3, rayParam)
+                        if res and os.clock() - lastJump > 0.3 then
+                            Hum:ChangeState(Enum.HumanoidStateType.Jumping)
+                            HRP.Velocity = Vector3.new(-d.X * 60, 52, -d.Z * 60)
+                            lastJump = os.clock()
+                            break
+                        end
+                    end
+                end
+            end)
+        end
+    end)
+    CreateToggle("Xuyên tường", 400, function(Enabled)
+        if Conn.NoClip then Conn.NoClip:Disconnect() Conn.NoClip = nil end
+        if Enabled then
+            Conn.NoClip = RunService.Stepped:Connect(function()
+                RefreshChar() if Hum and Hum.Health > 0 then
+                    for _,p in ipairs(Char:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide = false end end
+                end
+            end)
+        else
+            RefreshChar()
+            for _,p in ipairs(Char:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide = true end end
+        end
+    end)
+    CreateToggle("Tự hồi máu", 450, function(Enabled)
+        if Conn.Regen then Conn.Regen:Disconnect() Conn.Regen = nil end
+        if Enabled then Conn.Regen = RunService.Heartbeat:Connect(function() RefreshChar() if Hum and Hum.Health < Hum.MaxHealth then Hum.Health += 2 end end) end
+    end)
+    CreateToggle("Không thương rơi", 500, function(Enabled) RefreshChar(); if Hum then Hum.FallDamage = not Enabled end end)
+    CreateToggle("Tầm nhìn rộng", 550, function(Enabled) Camera.FieldOfView = Enabled and 110 or Original.FOV end)
+    CreateToggle("Nhìn xuyên vật thể", 600, function(Enabled)
+        if Conn.XRay then Conn.XRay:Disconnect() Conn.XRay = nil end
+        if Enabled then Conn.XRay = RunService.Heartbeat:Connect(function() for _,o in ipairs(Workspace:GetDescendants()) do if o:IsA("BasePart") and not o:IsDescendantOf(Char) then o.LocalTransparencyModifier = 0.6 end end end)
+        else for _,o in ipairs(Workspace:GetDescendants()) do if o:IsA("BasePart") then o.LocalTransparencyModifier = 0 end end end
+    end)
+    CreateToggle("Đạn vô hạn", 650, function(Enabled)
+        if Conn.InfAmmo then Conn.InfAmmo:Disconnect() Conn.InfAmmo = nil end
+        if Enabled then Conn.InfAmmo = RunService.Heartbeat:Connect(function() RefreshChar() for _,t in ipairs(Char:GetChildren()) do if t:IsA("Tool") then for _,v in ipairs(t:GetDescendants()) do if v:IsA("NumberValue") and (v.Name:lower():find("ammo") or v.Name:lower():find("clip")) then v.Value = 999 end end end end end)
+        end
+    end)
+    CreateToggle("Chạy trên nước", 700, function(Enabled)
+        if Conn.WaterWalk then Conn.WaterWalk:Disconnect() Conn.WaterWalk = nil end
+        if Enabled then Conn.WaterWalk = RunService.Heartbeat:Connect(function()
+            RefreshChar() if not HRP or Hum.Health <= 0 then return end
+            local ray = RaycastParams.new() ray.FilterDescendantsInstances = {Char} ray.FilterType = Enum.RaycastFilterType.Blacklist
+            local res = Workspace:Raycast(HRP.Position, Vector3.new(0, -5, 0), ray)
+            if res and res.Instance.Name:lower():find("water") then HRP.Velocity = Vector3.new(0, 8, 0) end
+        end) end
+    end)
+    CreateToggle("Không bị đẩy lùi", 750, function(Enabled)
+        RefreshChar() if not HRP then return end
+        local ab = HRP:FindFirstChild("AntiKB") or Instance.new("BodyVelocity", HRP)
+        ab.Name = "AntiKB"
+        ab.MaxForce = Enabled and Vector3.new(1e6, 0, 1e6) or Vector3.new(0,0,0)
+    end)
+    CreateToggle("Aim Bot", 800, function(Enabled)
+        AimSettings.Enabled = Enabled
+        if Conn.Aim then Conn.Aim:Disconnect() Conn.Aim = nil end
+        if not Enabled then return end
+        local function GetClosestEnemy()
+            local closest, dist = nil, AimSettings.Range
+            for _,v in ipairs(Players:GetPlayers()) do
+                if v ~= Player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character.Humanoid.Health > 0 then
+                    local part = v.Character:FindFirstChild(AimSettings.Part) or v.Character.Head
+                    local d = (Camera.CFrame.Position - part.Position).Magnitude
+                    if d < dist then dist = d; closest = part end
+                end
+            end
+            return closest
+        end
+        Conn.Aim = RunService.RenderStepped:Connect(function()
+            if not AimSettings.Enabled then return end
+            local target = GetClosestEnemy()
+            if target then Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, target.Position), AimSettings.Smooth) end
+        end)
+    end)
+
+    -- Nút lưu & dịch chuyển vị trí
+    CreateButton("📌 Lưu vị trí hiện tại", 850, function()
+        RefreshChar()
+        if HRP then SavedTelePoint = HRP.CFrame StatusText.Text = "✅ Đã lưu vị trí thành công" task.wait(2) StatusText.Text = "" end
+    end)
+    CreateButton("🚀 Đến vị trí đã lưu", 895, function()
+        if not SavedTelePoint then StatusText.Text = "❌ Chưa lưu vị trí nào" task.wait(2) StatusText.Text = "" return end
+        RefreshChar() if HRP then HRP.CFrame = SavedTelePoint HRP.Velocity = Vector3.new(0,0,0) StatusText.Text = "✅ Đã dịch chuyển" task.wait(2) StatusText.Text = "" end
+    end)
+
+    -- ==============================================
+    -- ✅ CHỨC NĂNG DỊCH CHUYỂN BẰNG CÔNG CỤ
+    -- ==============================================
+    local TeleFrame = Instance.new("Frame")
+    TeleFrame.Size = UDim2.new(0, 315, 0, 140)
+    TeleFrame.Position = UDim2.new(0, 6, 0, 940)
+    TeleFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    TeleFrame.BorderSizePixel = 0
+    TeleFrame.Parent = Scroll
+
+    local TeleCorner = UICorner:Clone()
+    TeleCorner.CornerRadius = UDim.new(0, 10)
+    TeleCorner.Parent = TeleFrame
+
+    local TeleTitle = Instance.new("TextLabel")
+    TeleTitle.Size = UDim2.new(1, 0, 0, 35)
+    TeleTitle.BackgroundColor3 = Color3.fromRGB(50, 50, 55)
+    TeleTitle.Text = "✨ DỊCH CHUYỂN BẰNG CÔNG CỤ"
+    TeleTitle.Font = Enum.Font.GothamBold
+    TeleTitle.TextColor3 = Color3.new(1,1,1)
+    TeleTitle.TextSize = 15
+    TeleTitle.Parent = TeleFrame
+
+    local TeleTitleCorner = UICorner:Clone()
+    TeleTitleCorner.CornerRadius = UDim.new(0, 10)
+    TeleTitleCorner.Parent = TeleTitle
+
+    local GetTPBtn = Instance.new("TextButton")
+    GetTPBtn.Size = UDim2.new(0.85, 0, 0, 45)
+    GetTPBtn.Position = UDim2.new(0.075, 0, 0, 50)
+    GetTPBtn.BackgroundColor3 = Color3.fromRGB(60, 180, 80)
+    GetTPBtn.Text = "📥 NHẬN CÔNG CỤ TP"
+    GetTPBtn.TextColor3 = Color3.new(1,1,1)
+    GetTPBtn.Font = Enum.Font.GothamBold
+    GetTPBtn.TextSize = 16
+    GetTPBtn.BorderSizePixel = 0
+    GetTPBtn.AutoButtonColor = false
+    GetTPBtn.Parent = TeleFrame
+
+    local TPCorner = UICorner:Clone()
+    TPCorner.CornerRadius = UDim.new(0, 8)
+    TPCorner.Parent = GetTPBtn
+
+    -- Hàm tạo công cụ dịch chuyển
+    local function CreateTPTool()
+        local Tool = Instance.new("Tool")
+        Tool.Name = "TeleportTool"
+        Tool.RequiresHandle = false
+        Tool.CanBeDropped = false
+        Tool.Parent = Player.Backpack
+
+        local equipped = false
+        Tool.Equipped:Connect(function() equipped = true end)
+        Tool.Unequipped:Connect(function() equipped = false end)
+
+        Mouse.Button1Down:Connect(function()
+            if equipped and Tool:IsDescendantOf(Char) then
+                local hit = Mouse.Hit
+                if HRP then
+                    HRP.CFrame = CFrame.new(hit.Position + Vector3.new(0, 3, 0))
+                    HRP.Velocity = Vector3.new(0, 0, 0)
+                end
+            end
+        end)
+    end
+
+    -- Gọi khi nhấn nút nhận công cụ
+    GetTPBtn.MouseButton1Click:Connect(function()
+        CreateTPTool()
+        GetTPBtn.BackgroundColor3 = Color3.fromRGB(40, 150, 60)
+        GetTPBtn.Text = "✅ Đã nhận công cụ"
+        task.wait(2)
+        GetTPBtn.BackgroundColor3 = Color3.fromRGB(60, 180, 80)
+        GetTPBtn.Text = "📥 NHẬN CÔNG CỤ TP"
+    end)
+end
